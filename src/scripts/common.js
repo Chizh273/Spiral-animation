@@ -13,21 +13,12 @@ export const generateCanvas = (width, height) => {
 export const generateFigure = (points, canvasWidth, canvasHeight) => {
   const size = Math.min(canvasWidth, canvasHeight)
   const step = size / points / 2
-  const rangedArray = range(1, points + 1);
-  const offset = {
-    x: canvasWidth / 2,
-    y: canvasHeight / 2,
-  }
+  const rangedArray = range(1, points + 1)
 
-  const negativePart = rangedArray.map(i =>
-    applyOffset(offset, { x: step * i * -1, y: 0 })
-  )
+  const negativePart = rangedArray.map(i => ({ x: step * i * -1, y: 0 }))
+  const positivePart = rangedArray.map(i => ({ x: step * i, y: 0 }))
 
-  const positivePart = rangedArray.map(i =>
-    applyOffset(offset, { x: step * i, y: 0 })
-  )
-
-  return [...negativePart, ...positivePart]
+  return [...negativePart, { x: 0, y: 0 }, ...positivePart]
 }
 
 export const applyOffset = (offset, point) => ({
