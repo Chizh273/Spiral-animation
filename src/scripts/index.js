@@ -1,11 +1,11 @@
 import { compose, map } from 'ramda'
-import { MIN_ANGLE, POINT_COUNT, RADIAN_IN_ONE_DEG } from './constants'
+import { applyOffset, generateCanvas, generateFigure } from './common'
 import {
-  applyOffset,
-  generateCanvas,
-  generateFigure,
-  getAngleStepDirection
-} from './common'
+  MAX_ANGLE,
+  MIN_ANGLE,
+  POINT_COUNT,
+  RADIAN_IN_ONE_DEG
+} from './constants'
 
 const WIDTH = window.innerWidth
 const HEIGHT = window.innerHeight
@@ -41,7 +41,12 @@ function render() {
   ctx.stroke()
 
   angle += angleStep
-  angleStep = getAngleStepDirection(angle)
+
+  if (angle < MAX_ANGLE + 1 && angle > MAX_ANGLE - 1) {
+    angleStep = -0.1
+  } else if (angle < MIN_ANGLE + 1 && angle > MIN_ANGLE - 1) {
+    angleStep = 0.1
+  }
 
   requestAnimationFrame(render)
 }
