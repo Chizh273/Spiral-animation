@@ -11,7 +11,6 @@
     "prettier/prettier": [
       2,
       {
-        trailingComma: "es5",
         singleQuote: true,
         printWidth: 80,
         semi: false,
