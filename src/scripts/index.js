@@ -1,33 +1,69 @@
 import { compose, map } from 'ramda'
 import { applyOffset, generateCanvas, generateFigure } from './common'
-import {
-  MAX_ANGLE,
-  MIN_ANGLE,
-  POINT_COUNT,
-  RADIAN_IN_ONE_DEG
-} from './constants'
+import { RADIAN_IN_1_DEG } from './constants'
+
+import * as dat from 'dat.gui'
+
+const gui = new dat.GUI()
+
+let angle = -360
+const settings = {
+  MIN_ANGLE: -360,
+  MAX_ANGLE: 360,
+  POINT_COUNT: 20,
+  angleStep: 0.23,
+  acceleration: 25,
+  lineWidth: 2,
+  color: '#ff0000'
+}
+
+gui
+  .add(settings, 'MIN_ANGLE')
+  .min(-360)
+  .max(360)
+  .onChange(val => (angle = angle < val ? val : angle))
+gui
+  .add(settings, 'MAX_ANGLE')
+  .min(-360)
+  .max(360)
+  .onChange(val => (angle = angle > val ? val : angle))
+gui
+  .add(settings, 'POINT_COUNT')
+  .min(10)
+  .max(50)
+gui
+  .add(settings, 'angleStep')
+  .min(0)
+  .max(1)
+gui
+  .add(settings, 'acceleration')
+  .min(10)
+  .max(50)
+gui
+  .add(settings, 'lineWidth')
+  .min(1)
+  .max(5)
+gui.addColor(settings, 'color')
 
 const WIDTH = window.innerWidth
 const HEIGHT = window.innerHeight
 const OFFSET = { x: WIDTH / 2, y: HEIGHT / 2 }
-
-const canvas = generateCanvas(WIDTH, HEIGHT)
-const ctx = canvas.getContext('2d')
-document.body.appendChild(canvas)
-
-let angle = MIN_ANGLE
-let angleStep = 0.23
-
-ctx.strokeStyle = 'red'
-ctx.fillStyle = 'red'
-ctx.lineWidth = 2
-
-const figureGenerator = generateFigure(POINT_COUNT, Math.min(WIDTH, HEIGHT), 25)
 const canvasOffset = applyOffset(OFFSET)
 
+const { canvas, ctx } = generateCanvas(WIDTH, HEIGHT)
+
 function render() {
-  const points = figureGenerator(angle * RADIAN_IN_ONE_DEG)
+  const points = generateFigure(
+    settings.POINT_COUNT,
+    Math.min(WIDTH, HEIGHT),
+    settings.acceleration,
+    angle * RADIAN_IN_1_DEG
+  )
   const firstPoint = canvasOffset(points[0])
+
+  ctx.strokeStyle = settings.color
+  ctx.fillStyle = settings.color
+  ctx.lineWidth = settings.lineWidth
 
   ctx.clearRect(0, 0, canvas.width, canvas.height)
   ctx.beginPath()
@@ -40,12 +76,12 @@ function render() {
 
   ctx.stroke()
 
-  angle += angleStep
+  angle += settings.angleStep
 
-  if (angle < MAX_ANGLE + 1 && angle > MAX_ANGLE - 1) {
-    angleStep = -0.1
-  } else if (angle < MIN_ANGLE + 1 && angle > MIN_ANGLE - 1) {
-    angleStep = 0.1
+  if (angle < settings.MAX_ANGLE + 1 && angle > settings.MAX_ANGLE - 1) {
+    settings.angleStep = -0.1
+  } else if (angle < settings.MIN_ANGLE + 1 && angle > settings.MIN_ANGLE - 1) {
+    settings.angleStep = 0.1
   }
 
   requestAnimationFrame(render)
